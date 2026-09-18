@@ -2,15 +2,15 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ "main", "master" ] # Berjalan otomatis saat ada perubahan kode
-  workflow_dispatch: # Memungkinkan kamu menjalankan kompilasi secara manual
+    branches: [ "main", "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Mengambil kode HTML dari repositori
+    # 1. Mengambil kode dari repositori GitHub
     - name: Checkout Kode
       uses: actions/checkout@v4
 
@@ -20,19 +20,21 @@ jobs:
       with:
         node-version: 18
 
-    # 3. Menyiapkan Java JDK untuk kompilasi Android
+    # 3. Menyiapkan Java JDK untuk Android
     - name: Setup Java JDK
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: '17'
 
-    # 4. Menginstal Capacitor & Membungkus File HTML ke Android
+    # 4. Membuat Folder www & Inisialisasi Platform Android
     - name: Inisialisasi Platform Android
       run: |
+        mkdir -p www
+        cp index.html nota.html timbang.html www/
         npm init -y
         npm install @capacitor/core @capacitor/cli @capacitor/android
-        npx cap init "Nota Mete" "com.metefarm.notamete" --web-dir .
+        npx cap init "Nota Mete" "com.metefarm.notamete" --web-dir www
         npx cap add android
         npx cap sync android
 
@@ -49,4 +51,3 @@ jobs:
       with:
         name: NotaMete-App
         path: android/app/build/outputs/apk/debug/app-debug.apk
-
