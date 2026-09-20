@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0F0F0F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Nota Mete</title>
+    <link rel="icon" href="nota-mete.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg: #0F0F0F;
+            --surface: #1A1A1A;
+            --surface-2: #242424;
+            --border: #333333;
+            --text: #FFFFFF;
+            --text-muted: #A0A0A0;
+            --accent: #3B82F6;
+            --accent-soft: rgba(59, 130, 246, 0.15);
+            --danger: #EF4444;
+            --success: #22C55E;
+            --radius: 16px;
+            --radius-pill: 999px;
+            --shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        html, body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            overscroll-behavior: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        .app {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            padding: 32px 24px 28px;
+            position: relative;
+        }
+
+        /* Tombol Keluar "X" di Pojok Kanan Atas */
+        .btn-close-app {
+            position: absolute;
+            top: max(16px, env(safe-area-inset-top));
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            color: var(--text-muted);
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn-close-app:active {
+            background: var(--surface-2);
+            color: var(--text);
+            transform: scale(0.92);
+        }
+
+        /* Background subtle glow */
+        .app::before {
+            content: "";
+            position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .logo-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            text-align: center;
+            gap: 12px;
+        }
+
+        .logo-mark {
+            width: 88px;
+            height: 88px;
+            border-radius: 22px;
+            background: linear-gradient(145deg, #1E1E1E, #2A2A2A);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .logo-mark img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .title {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            z-index: 1;
+            margin-top: 24px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 18px 20px;
+            border-radius: var(--radius-pill);
+            font-size: 17px;
+            font-weight: 700;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+            opacity: 0.9;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+        }
+
+        .btn-outline {
+            background: var(--surface);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+        }
+
+        .btn-outline:active {
+            background: var(--surface-2);
+        }
+
+        .btn-icon {
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            margin-top: 28px;
+            z-index: 1;
+        }
+
+        /* MODAL KONFIRMASI KELUAR */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            width: 100%;
+            max-width: 320px;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            text-align: center;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .modal-message {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .btn-modal-cancel {
+            flex: 1;
+            padding: 13px;
+            background: var(--surface-2);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-modal-exit {
+            flex: 1;
+            padding: 13px;
+            background: var(--danger);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Tombol "X" Keluar Aplikasi -->
+        <button class="btn-close-app" onclick="bukaModalKeluar()" title="Keluar Aplikasi">✕</button>
+
+        <div class="logo-area">
+            <div class="logo-mark">
+                <img src="nota-mete.ico" alt="Nota Mete Logo">
+            </div>
+            <h1 class="title">Nota Mete</h1>
+            <p class="subtitle">Aplikasi Nota & Data Timbang</p>
+        </div>
+
+        <div class="button-group">
+            <a href="nota.html" class="btn btn-primary">
+                <span class="btn-icon">📋</span>
+                Masuk Nota
+            </a>
+            <a href="timbang.html" class="btn btn-outline">
+                <span class="btn-icon">⚖️</span>
+                Data Timbang
+            </a>
+        </div>
+
+        <div class="footer">by mete farm</div>
+    </div>
+
+    <!-- POPUP KONFIRMASI KELUAR -->
+    <div id="modalKeluar" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-title">Keluar Aplikasi?</div>
+            <div class="modal-message">Apakah Anda yakin ingin keluar dari aplikasi Nota Mete?</div>
+            <div class="modal-actions">
+                <button class="btn-modal-cancel" onclick="tutupModalKeluar()">Batal</button>
+                <button class="btn-modal-exit" onclick="eksekusiKeluar()">Keluar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function bukaModalKeluar() {
+            document.getElementById('modalKeluar').style.display = 'flex';
+        }
+
+        function tutupModalKeluar() {
+            document.getElementById('modalKeluar').style.display = 'none';
+        }
+
+        function eksekusiKeluar() {
+            // Jalankan fungsi keluar native jika berjalan di Android WebView
+            if (window.Android && typeof window.Android.closeApp === 'function') {
+                window.Android.closeApp();
+            } else if (navigator.app && typeof navigator.app.exitApp === 'function') {
+                navigator.app.exitApp();
+            } else {
+                // Fallback untuk browser biasa
+                window.close();
+                setTimeout(() => {
+                    alert('Silakan tutup aplikasi atau browser secara manual.');
+                }, 200);
+            }
+        }
+    </script>
+</body>
+</html>

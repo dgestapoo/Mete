@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0F0F0F">
+    <title>Nota Penjualan - Nota Mete</title>
+    <link rel="icon" href="nota-mete.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg: #0F0F0F;
+            --surface: #1A1A1A;
+            --surface-2: #242424;
+            --border: #333333;
+            --text: #FFFFFF;
+            --text-muted: #A0A0A0;
+            --accent: #3B82F6;
+            --accent-soft: rgba(59, 130, 246, 0.15);
+            --success: #22C55E;
+            --danger: #EF4444;
+            --gold: #D4AF37;
+            --radius: 14px;
+            --radius-lg: 20px;
+            --shadow: 0 4px 16px rgba(0,0,0,0.35);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        html, body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100%;
+            overscroll-behavior: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            padding: 12px;
+            padding-top: max(12px, env(safe-area-inset-top));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+        }
+
+        .app {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 4px 0;
+        }
+
+        /* Top action buttons */
+        .top-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-pill {
+            flex: 1;
+            padding: 15px 12px;
+            background: var(--surface);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+            border-radius: 999px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .btn-pill.active {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+        }
+
+        .btn-pill:active {
+            transform: scale(0.97);
+        }
+
+        /* Header info */
+        .nota-header {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 4px 2px;
+        }
+
+        .info-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .bakul-name {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            max-width: 60%;
+            line-height: 1.25;
+        }
+
+        .date-time {
+            text-align: right;
+        }
+
+        .nota-date {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .nota-time {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-top: 2px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            color: var(--text-muted);
+        }
+
+        .input-harga {
+            background: transparent;
+            border: none;
+            border-bottom: 2px dashed var(--accent);
+            color: var(--text);
+            font-size: 18px;
+            font-weight: 800;
+            width: 110px;
+            outline: none;
+            padding: 2px 0;
+        }
+
+        /* Table card */
+        .table-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .nota-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .nota-table th {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding-bottom: 12px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .nota-table th:last-child {
+            text-align: right;
+        }
+
+        .nota-table td {
+            padding: 8px 2px;
+            font-size: 14px;
+            text-align: center;
+            color: var(--text);
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .nota-table td.cell-price {
+            text-align: right;
+        }
+
+        .cell-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1.5px solid #444;
+            color: var(--text);
+            text-align: center;
+            width: 100%;
+            max-width: 48px;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 4px 0;
+            outline: none;
+        }
+
+        .cell-input:focus {
+            border-bottom-color: var(--accent);
+        }
+
+        .btn-del-row {
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-weight: 800;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px 6px;
+            border-radius: 6px;
+            line-height: 1;
+        }
+
+        .btn-del-row:active {
+            background: rgba(239,68,68,0.15);
+        }
+
+        .underline {
+            border-bottom: 1.5px solid #555;
+            display: inline-block;
+            padding-bottom: 2px;
+            min-width: 28px;
+        }
+
+        .dibayar-row td {
+            padding-top: 14px;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .total-row td {
+            padding-top: 12px;
+            font-weight: 800;
+            font-size: 15px;
+        }
+
+        .total-label {
+            text-align: left !important;
+        }
+
+        .total-label .underline {
+            border-bottom-color: var(--gold);
+            border-bottom-width: 2px;
+        }
+
+        .total-value {
+            text-align: right !important;
+            font-size: 17px !important;
+            color: var(--success);
+        }
+
+        .btn-save-table {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 14px;
+            box-shadow: 0 6px 18px rgba(59,130,246,0.35);
+            transition: transform 0.12s, opacity 0.12s;
+        }
+
+        .btn-save-table:active {
+            transform: scale(0.98);
+            opacity: 0.92;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        /* ===== MODALS ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        #modalBakul { align-items: flex-start; padding-top: 40px; }
+        #modalInput { align-items: flex-start; padding-top: 24px; overflow-y: auto; }
+
+        .modal-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            width: 100%;
+            max-width: 380px;
+            padding: 22px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.55);
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 14px 14px 44px;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            color: var(--text);
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        .bakul-list {
+            max-height: 280px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .bakul-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 6px;
+            border-bottom: 1px solid #2A2A2A;
+            cursor: pointer;
+        }
+
+        .bakul-item:active {
+            background: var(--surface-2);
+        }
+
+        .bakul-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .bakul-item-left label {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .bakul-item input[type="radio"] {
+            accent-color: var(--accent);
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .btn-dots {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            padding: 6px 10px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .btn-dots:active {
+            color: var(--text);
+            background: var(--surface-2);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .btn-modal-secondary {
+            flex: 1;
+            padding: 13px;
+            background: var(--surface-2);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-modal-primary {
+            flex: 1;
+            padding: 13px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-input-line {
+            background: transparent;
+            border: none;
+            border-bottom: 1.5px solid #555;
+            color: var(--text);
+            font-size: 18px;
+            font-weight: 600;
+            padding: 10px 0;
+            outline: none;
+        }
+
+        .form-input-line:focus {
+            border-bottom-color: var(--accent);
+        }
+
+        .input-with-icon {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+
+        .input-with-icon span {
+            font-size: 18px;
+        }
+
+        .input-with-icon input {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 17px;
+            font-weight: 600;
+            width: 100%;
+            outline: none;
+        }
+
+        .modal-bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .btn-close-x {
+            background: var(--surface-2);
+            border: 1.5px solid var(--border);
+            color: var(--text);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .btn-modal-simpan {
+            padding: 14px 36px;
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(59,130,246,0.35);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <a href="index.html" class="btn-back">← Kembali</a>
+
+        <div class="top-actions">
+            <button id="btnPilihBakul" onclick="bukaModalBakul()" class="btn-pill">Pilih Bakul</button>
+            <button id="btnInputNota" onclick="bukaModalInput()" class="btn-pill">Input Nota</button>
+        </div>
+
+        <div class="nota-header">
+            <div class="info-top">
+                <span class="bakul-name" id="lblNamaBakul">Bakul Haji Somad</span>
+                <div class="date-time">
+                    <div class="nota-date" id="lblTanggal">-</div>
+                    <div class="nota-time" id="lblJam">-</div>
+                </div>
+            </div>
+            <div class="price-row">
+                Hrg. /kg Rp
+                <input type="number" id="lblHargaKg" class="input-harga" value="25000" onchange="updateHargaHeader(this.value)" inputmode="numeric">
+            </div>
+        </div>
+
+        <div class="table-card">
+            <table class="nota-table">
+                <thead>
+                    <tr>
+                        <th>Ekor</th>
+                        <th>Timbangan - Krj</th>
+                        <th>Bersih</th>
+                        <th>Harga</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="bodyTabelNota"></tbody>
+                <tfoot>
+                    <tr class="dibayar-row">
+                        <td colspan="2" class="total-label">
+                            <span>Dibayar</span>
+                        </td>
+                        <td>-</td>
+                        <td class="cell-price" colspan="2">
+                            <span style="color: var(--danger);" id="lblDibayar">Rp 0</span>
+                        </td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="2" class="total-label">
+                            <span class="underline">Jumlah Total</span>
+                        </td>
+                        <td>
+                            <span class="underline" id="lblTotalBerat">0 kg</span>
+                        </td>
+                        <td class="total-value" colspan="2">
+                            <span class="underline" id="lblTotalHarga">Rp 0</span>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+            <button onclick="simpanKeStorage()" class="btn-save-table">Simpan Nota Bakul Ini</button>
+        </div>
+
+        <div class="footer">by mete farm</div>
+    </div>
+
+    <!-- MODAL 1: PILIH BAKUL -->
+    <div id="modalBakul" class="modal-overlay">
+        <div class="modal-card">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="txtCariBakul" placeholder="Cari Nama Bakul..." onkeyup="filterBakul()">
+            </div>
+            <div class="bakul-list" id="containerDaftarBakul"></div>
+            <div class="modal-actions">
+                <button class="btn-modal-secondary" onclick="tambahBakulBaru()">+ Tambah Bakul</button>
+                <button class="btn-modal-primary" onclick="konfirmasiPilihBakul()">Oke</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: INPUT NOTA -->
+    <div id="modalInput" class="modal-overlay">
+        <div class="modal-card">
+            <div class="form-group">
+                <label class="form-label">Jumlah Ekor (ekor ayam)</label>
+                <input type="number" id="inpEkor" class="form-input-line" placeholder="contoh: 12" inputmode="numeric">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Berat Timbangan (total berat kg)</label>
+                <input type="number" step="0.01" id="inpKotor" class="form-input-line" placeholder="contoh: 18" inputmode="decimal">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Dibayar (Rp)</label>
+                <div class="input-with-icon">
+                    <span>💵</span>
+                    <input type="number" id="inpDibayarModal" placeholder="contoh: 50000" inputmode="numeric">
+                </div>
+            </div>
+            <div class="modal-bottom-row">
+                <button class="btn-close-x" onclick="tutupModalInput()">✕</button>
+                <button class="btn-modal-simpan" onclick="tambahItemNota()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: HAPUS BARIS -->
+    <div id="modalHapus" class="modal-overlay">
+        <div class="modal-card" style="text-align:center; max-width:300px;">
+            <h3 style="font-size:18px; font-weight:800;">Hapus Baris?</h3>
+            <p style="color:var(--text-muted); font-size:14px; line-height:1.45;">Apakah Anda yakin ingin menghapus data rincian baris ini?</p>
+            <div class="modal-actions">
+                <button class="btn-modal-secondary" onclick="tutupModalHapus()">Batal</button>
+                <button class="btn-modal-primary" style="background:var(--danger);" onclick="eksekusiHapusBaris()">Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: AKSI BAKUL -->
+    <div id="modalAksiBakul" class="modal-overlay">
+        <div class="modal-card" style="text-align:center; max-width:320px;">
+            <h3 style="font-size:18px; font-weight:800;">Konfirmasi</h3>
+            <p style="color:var(--text-muted); font-size:14px;" id="lblDeskripsiAksiBakul">Pilih aksi untuk bakul ini</p>
+            <div class="modal-actions" style="flex-wrap:wrap;">
+                <button class="btn-modal-secondary" onclick="tutupModalAksiBakul()">Batal</button>
+                <button class="btn-modal-primary" onclick="prosesPilihEditBakul()">Edit</button>
+                <button class="btn-modal-primary" style="background:var(--danger);" onclick="prosesPilihHapusBakul()">Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 5: EDIT BAKUL -->
+    <div id="modalEditBakul" class="modal-overlay">
+        <div class="modal-card">
+            <h3 style="font-size:18px; font-weight:800; text-align:center;">Edit Nama Bakul</h3>
+            <div class="form-group">
+                <label class="form-label">Nama Bakul Baru</label>
+                <input type="text" id="inpNamaBakulBaru" class="form-input-line" placeholder="Masukkan nama...">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-modal-secondary" onclick="tutupModalEditBakul()">Batal</button>
+                <button class="btn-modal-primary" onclick="simpanEditNamaBakul()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 6: TAMBAH BAKUL -->
+    <div id="modalTambahBakul" class="modal-overlay">
+        <div class="modal-card">
+            <h3 style="font-size:18px; font-weight:800; text-align:center;">Tambah Bakul Baru</h3>
+            <div class="form-group">
+                <label class="form-label">Nama Bakul Baru</label>
+                <input type="text" id="inpNamaBakulInputBaru" class="form-input-line" placeholder="contoh: Bakul Anto">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-modal-secondary" onclick="tutupModalTambahBakul()">Batal</button>
+                <button class="btn-modal-primary" onclick="simpanBakulBaruKustom()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 7: NOTIF SIMPAN -->
+    <div id="modalNotifSimpan" class="modal-overlay">
+        <div class="modal-card" style="text-align:center; gap:12px; padding:28px 20px;">
+            <div style="font-size:48px; line-height:1;">✅</div>
+            <h3 style="font-size:20px; font-weight:800;">Nota Berhasil Disimpan!</h3>
+            <p style="color:var(--text-muted); font-size:14px; line-height:1.45;" id="lblPesanSimpanSukses">
+                Data rincian nota telah tersimpan aman ke penyimpanan aplikasi.
+            </p>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
+                <button class="btn-modal-secondary" onclick="unduhBackupNotaFile()" style="display:flex; align-items:center; justify-content:center; gap:6px; font-size:14px; padding:13px;">
+                    <span>📄</span> Download Struk Nota (.txt)
+                </button>
+                <button class="btn-modal-primary" onclick="tutupModalNotifSimpan()" style="width:100%; padding:15px; font-size:16px; font-weight:800;">
+                    Selesai & Oke
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let daftarBakul = JSON.parse(localStorage.getItem('notaMete_masterBakul')) || [
+            "Bakul Haji Somad", "Bakul Bu Sri", "Bakul Pak Budi",
+            "Bakul Marni", "Bakul Suroso", "Bakul Roni", "Bakul Aisyah"
+        ];
+
+        let bakulAktif = localStorage.getItem('notaMete_bakulAktif') || daftarBakul[0];
+        let bakulTerpilihDiModal = bakulAktif;
+        let indexBarisAkanDihapus = null;
+        let bakulTargetAksi = null;
+
+        let dataNotaBakul = {
+            hargaPerKg: 25000,
+            dibayar: 0,
+            rincian: []
+        };
+
+        function setTanggalSistem() {
+            const hariNama = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+            const now = new Date();
+            const hari = hariNama[now.getDay()];
+            const tgl = now.getDate();
+            const bln = now.getMonth() + 1;
+            const thn = String(now.getFullYear()).slice(-2);
+            document.getElementById('lblTanggal').innerText = `${hari}, ${tgl}/${bln}/'${thn}`;
+        }
+
+        function updateJamSistem() {
+            const now = new Date();
+            const jam = String(now.getHours()).padStart(2, '0');
+            const menit = String(now.getMinutes()).padStart(2, '0');
+            const detik = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('lblJam').innerText = `${jam}:${menit}:${detik}`;
+        }
+
+        function formatAngka(angka) {
+            return Number(angka).toLocaleString('id-ID');
+        }
+
+        function muatDataBakulAktif() {
+            const stored = localStorage.getItem(`notaMete_data_${bakulAktif}`);
+            if (stored) {
+                dataNotaBakul = JSON.parse(stored);
+                if (dataNotaBakul.dibayar === undefined) dataNotaBakul.dibayar = 0;
+            } else {
+                dataNotaBakul = { hargaPerKg: 25000, dibayar: 0, rincian: [] };
+            }
+            document.getElementById('lblNamaBakul').innerText = bakulAktif;
+            document.getElementById('lblHargaKg').value = dataNotaBakul.hargaPerKg;
+            renderTabel();
+        }
+
+        function renderTabel() {
+            const tbody = document.getElementById('bodyTabelNota');
+            tbody.innerHTML = '';
+            let totalBersihKg = 0;
+            let akumulasiTotalHarga = 0;
+
+            dataNotaBakul.rincian.forEach((item, idx) => {
+                const bersih = Math.max(0, item.kotor - item.keranjang);
+                const subtotal = bersih * dataNotaBakul.hargaPerKg;
+                totalBersihKg += bersih;
+                akumulasiTotalHarga += subtotal;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <input type="number" class="cell-input" value="${item.ekor}" onchange="editRow(${idx}, 'ekor', this.value)" inputmode="numeric">
+                    </td>
+                    <td>
+                        <input type="number" step="0.1" class="cell-input" value="${item.kotor}" onchange="editRow(${idx}, 'kotor', this.value)" inputmode="decimal"> -
+                        <input type="number" step="0.1" class="cell-input" value="${item.keranjang}" onchange="editRow(${idx}, 'keranjang', this.value)" inputmode="decimal">
+                    </td>
+                    <td><span class="underline">${bersih % 1 === 0 ? bersih : bersih.toFixed(2)}</span></td>
+                    <td class="cell-price"><span class="underline">${formatAngka(subtotal)}</span></td>
+                    <td><button class="btn-del-row" onclick="mintaKonfirmasiHapus(${idx})">✕</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const nominalDibayar = dataNotaBakul.dibayar || 0;
+            const grandTotal = akumulasiTotalHarga - nominalDibayar;
+
+            document.getElementById('lblDibayar').innerText = "Rp " + formatAngka(nominalDibayar);
+            document.getElementById('lblTotalBerat').innerText = (totalBersihKg % 1 === 0 ? totalBersihKg : totalBersihKg.toFixed(2)) + " kg";
+            document.getElementById('lblTotalHarga').innerText = "Rp " + formatAngka(grandTotal);
+        }
+
+        function editRow(index, field, value) {
+            dataNotaBakul.rincian[index][field] = parseFloat(value) || 0;
+            renderTabel();
+        }
+
+        function mintaKonfirmasiHapus(index) {
+            indexBarisAkanDihapus = index;
+            document.getElementById('modalHapus').style.display = 'flex';
+        }
+
+        function tutupModalHapus() {
+            indexBarisAkanDihapus = null;
+            document.getElementById('modalHapus').style.display = 'none';
+        }
+
+        function eksekusiHapusBaris() {
+            if (indexBarisAkanDihapus !== null) {
+                dataNotaBakul.rincian.splice(indexBarisAkanDihapus, 1);
+                renderTabel();
+                tutupModalHapus();
+            }
+        }
+
+        function updateHargaHeader(val) {
+            dataNotaBakul.hargaPerKg = parseFloat(val) || 0;
+            renderTabel();
+        }
+
+        function simpanKeStorage() {
+            localStorage.setItem(`notaMete_data_${bakulAktif}`, JSON.stringify(dataNotaBakul));
+            localStorage.setItem('notaMete_masterBakul', JSON.stringify(daftarBakul));
+            localStorage.setItem('notaMete_bakulAktif', bakulAktif);
+            document.getElementById('lblPesanSimpanSukses').innerText = `Rincian nota transaksi untuk "${bakulAktif}" berhasil tersimpan rapi ke sistem!`;
+            document.getElementById('modalNotifSimpan').style.display = 'flex';
+        }
+
+        function tutupModalNotifSimpan() {
+            document.getElementById('modalNotifSimpan').style.display = 'none';
+        }
+
+        async function unduhBackupNotaFile() {
+            const now = new Date();
+            const tgl = String(now.getDate()).padStart(2, '0');
+            const bln = String(now.getMonth() + 1).padStart(2, '0');
+            const thn = now.getFullYear();
+            const formatTanggal = `${tgl}-${bln}-${thn}`;
+            const jamSekarang = document.getElementById('lblJam').innerText;
+
+            let isiTeks = `========================================\n`;
+            isiTeks += `            NOTA PENJUALAN              \n`;
+            isiTeks += `              METE FARM                 \n`;
+            isiTeks += `========================================\n`;
+            isiTeks += `Nama Bakul : ${bakulAktif}\n`;
+            isiTeks += `Tanggal    : ${formatTanggal}\n`;
+            isiTeks += `Jam        : ${jamSekarang}\n`;
+            isiTeks += `Harga / kg : Rp ${formatAngka(dataNotaBakul.hargaPerKg)}\n`;
+            isiTeks += `----------------------------------------\n`;
+            isiTeks += `No  Ekor  Timbangan-Krj  Bersih    Subtotal\n`;
+            isiTeks += `----------------------------------------\n`;
+
+            let totalBersihKg = 0;
+            let akumulasiTotalHarga = 0;
+
+            dataNotaBakul.rincian.forEach((item, idx) => {
+                const bersih = Math.max(0, item.kotor - item.keranjang);
+                const subtotal = bersih * dataNotaBakul.hargaPerKg;
+                totalBersihKg += bersih;
+                akumulasiTotalHarga += subtotal;
+
+                const no = String(idx + 1).padStart(2, ' ');
+                const ekor = String(item.ekor).padStart(4, ' ');
+                const timbangan = `${item.kotor}-${item.keranjang}`.padEnd(13, ' ');
+                const bersihStr = `${bersih % 1 === 0 ? bersih : bersih.toFixed(2)}kg`.padEnd(8, ' ');
+                const subtotalStr = `Rp ${formatAngka(subtotal)}`;
+                isiTeks += `${no}. ${ekor}  ${timbangan}  ${bersihStr}  ${subtotalStr}\n`;
+            });
+
+            const nominalDibayar = dataNotaBakul.dibayar || 0;
+            const grandTotal = akumulasiTotalHarga - nominalDibayar;
+
+            isiTeks += `----------------------------------------\n`;
+            isiTeks += `Total Berat : ${(totalBersihKg % 1 === 0 ? totalBersihKg : totalBersihKg.toFixed(2))} kg\n`;
+            isiTeks += `Dibayar     : Rp ${formatAngka(nominalDibayar)}\n`;
+            isiTeks += `Total Harga : Rp ${formatAngka(grandTotal)}\n`;
+            isiTeks += `========================================\n`;
+            isiTeks += `Terima kasih atas kerjasamanya!\n`;
+
+            const namaFile = `Nota_${formatTanggal}.txt`;
+
+            if ('showDirectoryPicker' in window) {
+                try {
+                    const dirHandle = await window.showDirectoryPicker();
+                    const bakulFolder = await dirHandle.getDirectoryHandle(bakulAktif, { create: true });
+                    const fileHandle = await bakulFolder.getFileHandle(namaFile, { create: true });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(isiTeks);
+                    await writable.close();
+                    alert(`✅ Struk berhasil disimpan di folder: ${bakulAktif}/${namaFile}`);
+                    return;
+                } catch (err) {
+                    console.log("Fallback download.");
+                }
+            }
+
+            const fileBlob = new Blob([isiTeks], { type: 'text/plain;charset=utf-8' });
+            const tempLink = document.createElement('a');
+            tempLink.href = URL.createObjectURL(fileBlob);
+            tempLink.download = `${bakulAktif.replace(/\s+/g, '_')}_Nota_${formatTanggal}.txt`;
+            tempLink.click();
+            URL.revokeObjectURL(tempLink.href);
+        }
+
+        function bukaModalBakul() {
+            setButtonActive('btnPilihBakul');
+            document.getElementById('modalBakul').style.display = 'flex';
+            renderDaftarBakulModal(daftarBakul);
+        }
+
+        function renderDaftarBakulModal(list) {
+            const container = document.getElementById('containerDaftarBakul');
+            container.innerHTML = '';
+            list.forEach((nama) => {
+                const checked = (nama === bakulAktif) ? 'checked' : '';
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'bakul-item';
+                itemDiv.onclick = () => {
+                    document.getElementById(`radio_${nama}`).checked = true;
+                    bakulTerpilihDiModal = nama;
+                };
+                itemDiv.innerHTML = `
+                    <div class="bakul-item-left">
+                        <input type="radio" id="radio_${nama}" name="pilihanBakul" value="${nama}" ${checked}>
+                        <label for="radio_${nama}">${nama}</label>
+                    </div>
+                    <button class="btn-dots" onclick="bukaMenuAksiBakul(event, '${nama}')" title="Opsi Bakul">⋮</button>
+                `;
+                container.appendChild(itemDiv);
+            });
+        }
+
+        function tambahBakulBaru() {
+            document.getElementById('inpNamaBakulInputBaru').value = '';
+            document.getElementById('modalTambahBakul').style.display = 'flex';
+        }
+
+        function tutupModalTambahBakul() {
+            document.getElementById('modalTambahBakul').style.display = 'none';
+        }
+
+        function simpanBakulBaruKustom() {
+            const namaBaru = document.getElementById('inpNamaBakulInputBaru').value;
+            if (namaBaru && namaBaru.trim() !== "") {
+                const namaClean = namaBaru.trim();
+                if (!daftarBakul.includes(namaClean)) {
+                    daftarBakul.push(namaClean);
+                    localStorage.setItem('notaMete_masterBakul', JSON.stringify(daftarBakul));
+                    bakulTerpilihDiModal = namaClean;
+                    renderDaftarBakulModal(daftarBakul);
+                }
+            }
+            tutupModalTambahBakul();
+        }
+
+        function bukaMenuAksiBakul(event, nama) {
+            event.stopPropagation();
+            bakulTargetAksi = nama;
+            document.getElementById('lblDeskripsiAksiBakul').innerText = `Pilih aksi untuk "${nama}"`;
+            document.getElementById('modalAksiBakul').style.display = 'flex';
+        }
+
+        function tutupModalAksiBakul() {
+            document.getElementById('modalAksiBakul').style.display = 'none';
+        }
+
+        function prosesPilihEditBakul() {
+            tutupModalAksiBakul();
+            document.getElementById('inpNamaBakulBaru').value = bakulTargetAksi;
+            document.getElementById('modalEditBakul').style.display = 'flex';
+        }
+
+        function tutupModalEditBakul() {
+            document.getElementById('modalEditBakul').style.display = 'none';
+        }
+
+        function simpanEditNamaBakul() {
+            const namaBaru = document.getElementById('inpNamaBakulBaru').value;
+            if (namaBaru && namaBaru.trim() !== "" && namaBaru.trim() !== bakulTargetAksi) {
+                const namaClean = namaBaru.trim();
+                const idx = daftarBakul.indexOf(bakulTargetAksi);
+                if (idx !== -1) {
+                    daftarBakul[idx] = namaClean;
+                    const dataLama = localStorage.getItem(`notaMete_data_${bakulTargetAksi}`);
+                    if (dataLama) {
+                        localStorage.setItem(`notaMete_data_${namaClean}`, dataLama);
+                        localStorage.removeItem(`notaMete_data_${bakulTargetAksi}`);
+                    }
+                    if (bakulAktif === bakulTargetAksi) bakulAktif = namaClean;
+                    bakulTerpilihDiModal = namaClean;
+                    localStorage.setItem('notaMete_masterBakul', JSON.stringify(daftarBakul));
+                    localStorage.setItem('notaMete_bakulAktif', bakulAktif);
+                    muatDataBakulAktif();
+                    renderDaftarBakulModal(daftarBakul);
+                }
+            }
+            tutupModalEditBakul();
+        }
+
+        function prosesPilihHapusBakul() {
+            tutupModalAksiBakul();
+            if (daftarBakul.length <= 1) {
+                alert("Minimal harus tersisa 1 nama bakul!");
+                return;
+            }
+            daftarBakul = daftarBakul.filter(b => b !== bakulTargetAksi);
+            localStorage.removeItem(`notaMete_data_${bakulTargetAksi}`);
+            if (bakulAktif === bakulTargetAksi) bakulAktif = daftarBakul[0];
+            bakulTerpilihDiModal = bakulAktif;
+            localStorage.setItem('notaMete_masterBakul', JSON.stringify(daftarBakul));
+            localStorage.setItem('notaMete_bakulAktif', bakulAktif);
+            muatDataBakulAktif();
+            renderDaftarBakulModal(daftarBakul);
+        }
+
+        function filterBakul() {
+            const q = document.getElementById('txtCariBakul').value.toLowerCase();
+            const filtered = daftarBakul.filter(b => b.toLowerCase().includes(q));
+            renderDaftarBakulModal(filtered);
+        }
+
+        function konfirmasiPilihBakul() {
+            bakulAktif = bakulTerpilihDiModal;
+            localStorage.setItem('notaMete_bakulAktif', bakulAktif);
+            muatDataBakulAktif();
+            tutupModalBakul();
+        }
+
+        function tutupModalBakul() {
+            document.getElementById('modalBakul').style.display = 'none';
+            clearButtonActive();
+        }
+
+        function bukaModalInput() {
+            setButtonActive('btnInputNota');
+            document.getElementById('inpEkor').value = '';
+            document.getElementById('inpKotor').value = '';
+            document.getElementById('inpDibayarModal').value = dataNotaBakul.dibayar || '';
+            document.getElementById('modalInput').style.display = 'flex';
+        }
+
+        function tutupModalInput() {
+            document.getElementById('modalInput').style.display = 'none';
+            clearButtonActive();
+        }
+
+        function tambahItemNota() {
+            const ekor = parseFloat(document.getElementById('inpEkor').value) || 0;
+            const kotor = parseFloat(document.getElementById('inpKotor').value) || 0;
+            const inputDibayar = document.getElementById('inpDibayarModal').value;
+            const dibayar = inputDibayar !== '' ? parseFloat(inputDibayar) : (dataNotaBakul.dibayar || 0);
+
+            dataNotaBakul.dibayar = dibayar;
+
+            if (ekor > 0 || kotor > 0) {
+                dataNotaBakul.rincian.push({ ekor, kotor, keranjang: 11 });
+            }
+
+            renderTabel();
+            tutupModalInput();
+        }
+
+        function setButtonActive(id) {
+            clearButtonActive();
+            document.getElementById(id).classList.add('active');
+        }
+
+        function clearButtonActive() {
+            document.getElementById('btnPilihBakul').classList.remove('active');
+            document.getElementById('btnInputNota').classList.remove('active');
+        }
+
+        setTanggalSistem();
+        updateJamSistem();
+        setInterval(updateJamSistem, 1000);
+        muatDataBakulAktif();
+    </script>
+</body>
+</html>
