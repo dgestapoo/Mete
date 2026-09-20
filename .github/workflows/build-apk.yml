@@ -19,73 +19,207 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Set up Java 17
+      - name: Setup Java JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Install image tools
+      - name: Install required tools
         run: |
           sudo apt-get update
           sudo apt-get install -y imagemagick file
 
-      - name: Validate and prepare web assets
+      - name: Validate web files and image assets
         shell: bash
         run: |
           set -euo pipefail
+
           test -f www/index.html
           test -f www/nota.html
           test -f www/timbang.html
           test -f www/nota-mete.ico
-          file www/nota-mete.ico
+          test -f assets/nota-mete.png
 
-          mkdir -p assets
-          convert www/nota-mete.ico -background none -resize 512x512 assets/nota-mete.png
+          file www/nota-mete.ico
+          file assets/nota-mete.png
+
+          test -s www/nota-mete.ico
           test -s assets/nota-mete.png
 
-      - name: Install Capacitor
-        run: |
-          npm init -y
-          npm install --save-exact @capacitor/core@6.2.1 @capacitor/cli@6.2.1 @capacitor/android@6.2.1
-          npx cap init "Nota Mete" "com.metefarm.notamete" --web-dir www
-          npx cap add android
-          npx cap sync android
+          identify assets/nota-mete.png
 
-      - name: Configure Android 7+ and application icon
+      - name: Initialize Capacitor project
         shell: bash
         run: |
           set -euo pipefail
 
-          # Android 7.0 is API level 24.
-          sed -i -E 's/^([[:space:]]*)minSdkVersion[[:space:]]*=.*/\1minSdkVersion = 24/' android/variables.gradle
-          sed -i -E 's/^([[:space:]]*)targetSdkVersion[[:space:]]*=.*/\1targetSdkVersion = 35/' android/variables.gradle
-          sed -i -E 's/^([[:space:]]*)compileSdkVersion[[:space:]]*=.*/\1compileSdkVersion = 35/' android/variables.gradle
+          npm init -y
 
-          sed -i -E 's/versionCode[[:space:]]+[0-9]+/versionCode 13/' android/app/build.gradle
-          sed -i -E 's/versionName[[:space:]]+"[^"]+"/versionName "1.3"/' android/app/build.gradle
+          npm install --save-exact \
+            @capacitor/core@6.2.1 \
+            @capacitor/cli@6.2.1 \
+            @capacitor/android@6.2.1
 
-          # Use the supplied icon for all standard launcher densities.
-          for dir in android/app/src/main/res/mipmap-*; do
-            [ -d "$dir" ] || continue
-            convert assets/nota-mete.png -resize 192x192 "$dir/ic_launcher.png"
-            convert assets/nota-mete.png -resize 192x192 "$dir/ic_launcher_round.png"
-          done
+          npx cap init \
+            "Nota Mete" \
+            "com.metefarm.notamete" \
+            --web-dir www
+
+          npx cap add android
+          npx cap sync android
+
+      - name: Configure Android application
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Android 7.0 = API level 24
+          sed -i -E \
+            's/^([[:space:]]*)minSdkVersion[[:space:]]*=.*/\1minSdkVersion = 24/' \
+            android/variables.gradle
+
+          sed -i -E \
+            's/^([[:space:]]*)targetSdkVersion[[:space:]]*=.*/\1targetSdkVersion = 35/' \
+            android/variables.gradle
+
+          sed -i -E \
+            's/^([[:space:]]*)compileSdkVersion[[:space:]]*=.*/\1compileSdkVersion = 35/' \
+            android/variables.gradle
+
+          sed -i -E \
+            's/versionCode[[:space:]]+[0-9]+/versionCode 13/' \
+            android/app/build.gradle
+
+          sed -i -E \
+            's/versionName[[:space:]]+"[^"]+"/versionName "1.3"/' \
+            android/app/build.gradle
+
+          # Nama aplikasi
+          sed -i -E \
+            's/<string name="app_name">[^<]*<\/string>/<string name="app_name">Nota Mete v1.3<\/string>/' \
+            android/app/src/main/res/values/strings.xml
+
+      - name: Configure Android launcher icon
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ICON="assets/nota-mete.png"
+          RES="android/app/src/main/res"
+
+          test -f "$ICON"
+
+          # Hapus resource adaptive icon bawaan Capacitor.
+          # Jika tidak dihapus, akan terjadi duplicate resources.
+          rm -f "$RES/mipmap-anydpi-v26/ic_launcher.xml"
+          rm -f "$RES/mipmap-anydpi-v26/ic_launcher_round.xml"
+          rm -f "$RES/mipmap-anydpi-v26/ic_launcher.png"
+          rm -f "$RES/mipmap-anydpi-v26/ic_launcher_round.png"
+
+          # Buat folder density jika belum tersedia.
+          mkdir -p \
+            "$RES/mipmap-mdpi" \
+            "$RES/mipmap-hdpi" \
+            "$RES/mipmap-xhdpi" \
+            "$RES/mipmap-xxhdpi" \
+            "$RES/mipmap-xxxhdpi"
+
+          # Buat ikon PNG pada folder density Android.
+          convert "$ICON" -resize 48x48 \
+            "$RES/mipmap-mdpi/ic_launcher.png"
+
+          convert "$ICON" -resize 72x72 \
+            "$RES/mipmap-hdpi/ic_launcher.png"
+
+          convert "$ICON" -resize 96x96 \
+            "$RES/mipmap-xhdpi/ic_launcher.png"
+
+          convert "$ICON" -resize 144x144 \
+            "$RES/mipmap-xxhdpi/ic_launcher.png"
+
+          convert "$ICON" -resize 192x192 \
+            "$RES/mipmap-xxxhdpi/ic_launcher.png"
+
+          convert "$ICON" -resize 48x48 \
+            "$RES/mipmap-mdpi/ic_launcher_round.png"
+
+          convert "$ICON" -resize 72x72 \
+            "$RES/mipmap-hdpi/ic_launcher_round.png"
+
+          convert "$ICON" -resize 96x96 \
+            "$RES/mipmap-xhdpi/ic_launcher_round.png"
+
+          convert "$ICON" -resize 144x144 \
+            "$RES/mipmap-xxhdpi/ic_launcher_round.png"
+
+          convert "$ICON" -resize 192x192 \
+            "$RES/mipmap-xxxhdpi/ic_launcher_round.png"
+
+      - name: Configure modern WebView
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          JAVA_DIR="android/app/src/main/java/com/metefarm/notamete"
+          mkdir -p "$JAVA_DIR"
+
+          cat > "$JAVA_DIR/MainActivity.java" <<'JAVA'
+          package com.metefarm.notamete;
+
+          import android.os.Bundle;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+
+          import com.getcapacitor.BridgeActivity;
+
+          public class MainActivity extends BridgeActivity {
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+
+                  WebView webView = getBridge().getWebView();
+                  WebSettings settings = webView.getSettings();
+
+                  settings.setJavaScriptEnabled(true);
+                  settings.setDomStorageEnabled(true);
+                  settings.setDatabaseEnabled(true);
+                  settings.setAllowFileAccess(true);
+                  settings.setAllowContentAccess(true);
+                  settings.setBuiltInZoomControls(false);
+                  settings.setDisplayZoomControls(false);
+                  settings.setSupportZoom(false);
+                  settings.setMediaPlaybackRequiresUserGesture(false);
+                  settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+
+                  webView.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
+                  webView.setHorizontalScrollBarEnabled(false);
+                  webView.setVerticalScrollBarEnabled(false);
+              }
+          }
+          JAVA
 
       - name: Build release APK
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon assembleRelease
+          ./gradlew --no-daemon clean assembleRelease
 
       - name: Rename APK
+        shell: bash
         run: |
-          cp android/app/build/outputs/apk/release/app-release-unsigned.apk "nota mete v1.3.apk"
+          set -euo pipefail
+
+          cp \
+            android/app/build/outputs/apk/release/app-release-unsigned.apk \
+            "nota mete v1.3.apk"
+
+          test -s "nota mete v1.3.apk"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
